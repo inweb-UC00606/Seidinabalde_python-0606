@@ -1,0 +1,21 @@
+  # O programa tenta adivinhar com possibilidade de erro
+    # 50% de chance de certar, 50% de errar
+    if random.random() < 0.5:
+        palpite = soma_correta  # certa
+    else:
+        # gera um palpite errado
+        palpite = soma_correta + random.randint(-5, 5)
+        while palpite == soma_correta:
+            palpite = soma_correta + random.randint(-5, 5)
+
+    # Mostrar no formato desejado
+    if palpite == soma_correta:
+        print(f"Resultado = {palpite}, correto")
+        corretas += 1
+    else:
+        print(f"Resultado = {palpite}, errado (correto seria {soma_correta})")
+        erradas += 1
+
+print("RESULTADOS")
+print(f"Total de acertos: {corretas}")
+print(f"Total de erros: {erradas}")
