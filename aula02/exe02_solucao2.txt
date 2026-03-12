@@ -1,0 +1,15 @@
+import random
+
+print("JOGO DA SOMA")
+
+for i in range(5):
+    numero = int(input("Digite um número: "))
+
+    # O programa tenta adivinhar (pode acertar ou errar)
+    palpite = random.randint(numero - 5, numero + 5)
+
+    # Mostrar resultado
+    if palpite == numero:
+        print(f"Resultado = {palpite}, correto")
+    else:
+        print(f"Resultado = {palpite}, errado (correto seria {numero})")
