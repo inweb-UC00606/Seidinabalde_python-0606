@@ -1,0 +1,35 @@
+produtos = []  # cada produto será [nome, preço]
+
+
+def registar():
+    nome = input("Nome do produto: ")
+    preco = float(input("Preço: "))
+    produtos.append([nome, preco])
+    print("Produto registado com sucesso!\n")
+
+
+def listar():
+    print("\n==== Lista de Produtos ===")
+    for p in produtos:
+        print(f"{p[0]} - {p[1]}€")
+    print()
+
+
+def preco_medio():
+    if len(produtos) == 0:
+        print("Não há produtos.\n")
+        return
+
+    soma = 0
+    for p in produtos:
+        soma += p[1]
+
+    media = soma / len(produtos)
+    print(f"Preço médio: {media:.2f}€\n")
+
+
+opcao = "0"
+
+while opcao != "4":
+    print("1 - Registar")
+    print("2 - Listar")
