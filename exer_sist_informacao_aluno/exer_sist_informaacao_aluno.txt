@@ -1,0 +1,29 @@
+alunos = []
+
+opcao = "0"  
+
+while opcao != "3":
+    print("1 - Adicionar aluno")
+    print("2 - Mostrar alunos")
+    print("3 - Sair")
+
+    opcao = input("Escolha uma opção: ")
+
+    if opcao == "1":
+        nome = input("Nome: ")
+        idade = input("Idade: ")
+        curso = input("Curso: ")
+
+        alunos.append([nome, idade, curso])
+        print("Aluno adicionado!")
+
+    elif opcao == "2":
+        print("\n--- Alunos registados ---")
+        for a in alunos:
+            print(f"Nome: {a[0]}, Idade: {a[1]}, Curso: {a[2]}")
+        print()
+
+    elif opcao != "3":
+        print("Opção inválida")
+
+print("A sair...")
