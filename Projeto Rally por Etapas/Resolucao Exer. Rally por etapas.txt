@@ -1,0 +1,110 @@
+equipas = []
+
+def registar_equipa():
+    print("\n--- Registar Equipa ---")
+    numero = input("Número da equipa: ")
+    piloto = input("Nome do piloto: ")
+    copiloto = input("Nome do co-piloto: ")
+
+    equipas.append({
+        "numero": numero,
+        "piloto": piloto,
+        "copiloto": copiloto,
+        "tempos": []
+    })
+    print("Equipa registada com sucesso!\n")
+
+
+def registar_tempo():
+    print("\n--- Registar Tempos por Etapa ---")
+    numero = input("Número da equipa: ")
+
+    for e in equipas:
+        if e["numero"] == numero:
+
+            etapas = int(input("Quantas etapas foram concluídas? "))
+
+            e["tempos"] = []  # limpa tempos anteriores
+
+            for i in range(1, etapas + 1):
+                tempo = float(input(f"Tempo da etapa {i} (em horas): "))
+                e["tempos"].append(tempo)
+
+            print("Tempos registados com sucesso!\n")
+            return
+
+    print("Equipa não encontrada!\n")
+
+
+def mostrar_vencedor():
+    print("\n--- Vencedores ---")
+
+    equipas_com_tempo = [e for e in equipas if len(e["tempos"]) > 0]
+
+    if not equipas_com_tempo:
+        print("Ainda não existem tempos registados.\n")
+        return
+
+    # calcula o total de cada equipa
+    vencedor = min(equipas_com_tempo, key=lambda x: sum(x["tempos"]))
+
+    print("Vencedores:")
+    print(f"Número: {vencedor['numero']}")
+    print(f"Piloto: {vencedor['piloto']}")
+    print(f"Co-piloto: {vencedor['copiloto']}")
+    print(f"Tempo total: {sum(vencedor['tempos'])} horas\n")
+
+
+def listar_equipas():
+    print("\n--- Lista de Equipas ---")
+    if not equipas:
+        print("Nenhuma equipa registada.\n")
+        return
+
+    for e in equipas:
+        print(f"Numero: {e['numero']} | Piloto: {e['piloto']} | Co-piloto: {e['copiloto']}")
+    print()
+
+
+def listar_lentos():
+    print("\n--- Equipas com tempo total superior a 4 horas ---")
+
+    lentos = [e for e in equipas if len(e["tempos"]) > 0 and sum(e["tempos"]) > 4]
+
+    if not lentos:
+        print("Nenhuma equipa com tempo superior a 4 horas.\n")
+        return
+
+    for e in lentos:
+        print(f"Numero: {e['numero']} | Piloto: {e['piloto']} | Co-piloto: {e['copiloto']} | Tempo total: {sum(e['tempos'])}h")
+    print()
+
+
+# ------------------ MENU PRINCIPAL ------------------
+
+while True:
+    print("===== MENU RALLY =====")
+    print("1 - Registar dupla de pilotos")
+    print("2 - Registar tempos por etapa")
+    print("3 - Mostrar vencedores")
+    print("4 - Listar equipas")
+    print("5 - Listar equipas lentas (>4h)")
+    print("6 - Sair")
+
+    opcao = input("Escolha uma opção: ")
+
+    if opcao == "1":
+        registar_equipa()
+    elif opcao == "2":
+        registar_tempo()
+    elif opcao == "3":
+        mostrar_vencedor()
+    elif opcao == "4":
+        listar_equipas()
+    elif opcao == "5":
+        listar_lentos()
+    elif opcao == "6":
+        print("A sair do programa...")
+        break
+    else:
+        print("Opção inválida!\n")
