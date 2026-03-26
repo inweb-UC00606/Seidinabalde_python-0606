@@ -1,0 +1,200 @@
+# Listas principais
+areas = []
+especies = []
+animais = []
+visitantes = []
+visitas = []
+
+
+# ---------------------------
+# FUNÇÕES
+# ---------------------------
+
+def escolher(lista, titulo):
+    if not lista:
+        print(f"Não existem {titulo} registados!")
+        return None
+
+    print(f"\nEscolha {titulo}:")
+    for i, item in enumerate(lista):
+        if "nome" in item:
+            print(i, "-", item["nome"])
+        elif "ref" in item:
+            print(i, "-", item["ref"])
+        else:
+            print(i, "-", item)
+
+    try:
+        i = int(input("Opção: "))
+        if 0 <= i < len(lista):
+            return lista[i]
+    except:
+        pass
+
+    print("Opção inválida!")
+    return None
+
+
+# ---------------------------
+# REGISTAR ÁREA
+# ---------------------------
+def registar_area():
+    ref = input("Referência: ")
+    desc = input("Descrição: ")
+    areas.append({"ref": ref, "desc": desc})
+    print("Área registada!")
+
+
+# ---------------------------
+# REGISTAR ESPÉCIE
+# ---------------------------
+def registar_especie():
+    desc = input("Descrição da espécie: ")
+    especies.append({"desc": desc})
+    print("Espécie registada!")
+
+
+# ---------------------------
+# REGISTAR ANIMAL
+# ---------------------------
+def registar_animal():
+    area = escolher(areas, "uma área")
+    if not area:
+        return
+
+    especie = escolher(especies, "uma espécie")
+    if not especie:
+        return
+
+    nome = input("Nome do animal: ")
+    chip = input("Número de chip: ")
+    nasc = input("Data de nascimento: ")
+
+    animais.append({
+        "nome": nome,
+        "chip": chip,
+        "nasc": nasc,
+        "area": area,
+        "especie": especie
+    })
+
+    print("Animal registado!")
+
+
+# ---------------------------
+# REGISTAR VISITANTE
+# ---------------------------
+def registar_visitante():
+    cc = input("Cartão de cidadão: ")
+
+    for v in visitantes:
+        if v["cc"] == cc:
+            print("Visitante já registado!")
+            return
+
+    nome = input("Nome: ")
+    email = input("Email: ")
+
+    visitantes.append({
+        "nome": nome,
+        "email": email,
+        "cc": cc
+    })
+
+    print("Visitante registado!")
+
+
+# ---------------------------
+# REGISTAR VISITA
+# ---------------------------
+def registar_visita():
+    visitante = escolher(visitantes, "um visitante")
+    if not visitante:
+        return
+
+    if not areas:
+        print("Não existem áreas!")
+        return
+
+    print("\nEscolha áreas visitadas (ex: 0,2):")
+    for i, a in enumerate(areas):
+        print(i, "-", a["ref"], "-", a["desc"])
+
+    entrada = input("Áreas: ").split(",")
+
+    areas_visitadas = []
+    for x in entrada:
+        try:
+            idx = int(x)
+            if 0 <= idx < len(areas):
+                areas_visitadas.append(areas[idx])
+        except:
+            print("Valor inválido ignorado:", x)
+
+    visitas.append({
+        "visitante": visitante,
+        "areas": areas_visitadas
+    })
+
+    print("Visita registada!")
+
+
+# ---------------------------
+# CONSULTAR VISITAS
+# ---------------------------
+def consultar_visitas():
+    visitante = escolher(visitantes, "um visitante")
+    if not visitante:
+        return
+
+    print("\nÁreas visitadas e animais:")
+
+    encontrou = False
+
+    for vis in visitas:
+        if vis["visitante"]["cc"] == visitante["cc"]:
+            encontrou = True
+            for area in vis["areas"]:
+                print(f"\nÁrea: {area['ref']} - {area['desc']}")
+                print("Animais:")
+
+                for a in animais:
+                    if a["area"] == area:
+                        print(f" - {a['nome']} ({a['especie']['desc']})")
+
+    if not encontrou:
+        print("Este visitante não tem visitas registadas.")
+
+
+# ---------------------------
+# MENU PRINCIPAL
+# ---------------------------
+while True:
+    print("\n===== ZOO =====")
+    print("1 - Registar Área")
+    print("2 - Registar Espécie")
+    print("3 - Registar Animal")
+    print("4 - Registar Visitante")
+    print("5 - Registar Visita")
+    print("6 - Consultar Visitas")
+    print("0 - Sair")
+
+    op = input("Opção: ")
+
+    if op == "1":
+        registar_area()
+    elif op == "2":
+        registar_especie()
+    elif op == "3":
+        registar_animal()
+    elif op == "4":
+        registar_visitante()
+    elif op == "5":
+        registar_visita()
+    elif op == "6":
+        consultar_visitas()
+    elif op == "0":
+        print("Programa terminado.")
+        break
+    else:
+        print("Opção inválida!")
