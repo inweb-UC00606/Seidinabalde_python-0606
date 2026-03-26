@@ -1,0 +1,116 @@
+proprietarios = []
+veiculos = []
+pecas = []
+intervencoes = []
+
+while True:
+    print("\n1 - Registar Proprietário")
+    print("2 - Registar Veículo")
+    print("3 - Registar Peça")
+    print("4 - Registar Intervenção")
+    print("5 - Consultar Intervenções por Matrícula")
+    print("0 - Sair")
+
+    op = input("Opção: ")
+
+    # REGISTAR PROPRIETÁRIO
+    if op == "1":
+        nif = input("NIF: ")
+        nome = input("Nome: ")
+        morada = input("Morada: ")
+
+        proprietarios.append({
+            "nif": nif,
+            "nome": nome,
+            "morada": morada
+        })
+
+        print("Proprietário registado!")
+
+    # REGISTAR VEÍCULO
+    elif op == "2":
+        print("\nEscolha o proprietário:")
+        for i, p in enumerate(proprietarios):
+            print(i, "-", p["nome"])
+
+        idx = int(input("Número do proprietário: "))
+        prop = proprietarios[idx]
+
+        matricula = input("Matrícula: ")
+        marca = input("Marca: ")
+        modelo = input("Modelo: ")
+
+        veiculos.append({
+            "proprietario": prop,
+            "matricula": matricula,
+            "marca": marca,
+            "modelo": modelo
+        })
+
+        print("Veículo registado!")
+
+    # REGISTAR PEÇA
+    elif op == "3":
+        ref = input("Referência: ")
+        desc = input("Descrição: ")
+
+        pecas.append({
+            "ref": ref,
+            "desc": desc
+        })
+
+        print("Peça registada!")
+
+    # REGISTAR INTERVENÇÃO
+    elif op == "4":
+        print("\nEscolha o veículo:")
+        for i, v in enumerate(veiculos):
+            print(i, "-", v["matricula"])
+
+        idx = int(input("Número do veículo: "))
+        veic = veiculos[idx]
+
+        print("\nEscolha as peças usadas (ex: 0,2,3):")
+        for i, p in enumerate(pecas):
+            print(i, "-", p["ref"])
+
+        lista = input("Peças: ").split(",")
+        usadas = [pecas[int(x)] for x in lista]
+
+        data = input("Data da intervenção: ")
+
+        intervencoes.append({
+            "veiculo": veic,
+            "pecas": usadas,
+            "data": data
+        })
+
+        print("Intervenção registada!")
+
+    # CONSULTAR INTERVENÇÕES POR MATRÍCULA
+    elif op == "5":
+        mat = input("Matrícula: ")
+
+        print("\nIntervenções encontradas:")
+        indices = []
+        for i, inter in enumerate(intervencoes):
+            if inter["veiculo"]["matricula"] == mat:
+                print(i, "-", inter["data"])
+                indices.append(i)
+
+        if not indices:
+            print("Nenhuma intervenção encontrada.")
+            continue
+
+        idx = int(input("Escolha intervenção: "))
+        inter = intervencoes[idx]
+
+        print("\nPeças utilizadas:")
+        for p in inter["pecas"]:
+            print(p["ref"], "-", p["desc"])
+
+    elif op == "0":
+        break
+
+    else:
+        print("Opção inválida.")
