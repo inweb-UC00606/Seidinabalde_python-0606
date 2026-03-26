@@ -1,0 +1,91 @@
+class Reserva:
+    def __init__(self, id_reserva, nif, id_quarto, preco, noites):
+        self.id_reserva = id_reserva
+        self.nif = nif
+        self.id_quarto = id_quarto
+        self.preco = preco
+        self.noites = noites
+
+    def calculaValor(self):
+        return self.preco * self.noites
+
+    def imprimeTalao(self):
+        print("\nHOTEL XPTO\n")
+        print(f"NIF CLIENTE: {self.nif}")
+        print(f"Valor a pagar: {self.calculaValor()} EUR\n")
+        print("geral@hotelxpto.pt | www.hotelxpto.pt\n")
+
+
+# Lista onde vamos guardar as reservas
+reservas = []
+
+
+def registarReserva():
+    print("\n--- Registar Reserva ---")
+    id_reserva = int(input("ID da reserva: "))
+    nif = int(input("NIF do cliente: "))
+    id_quarto = int(input("ID do quarto: "))
+    preco = float(input("Preço por noite: "))
+    noites = int(input("Número de noites: "))
+
+    nova = Reserva(id_reserva, nif, id_quarto, preco, noites)
+    reservas.append(nova)
+    print("Reserva registada com sucesso!\n")
+
+
+def listarReservas():
+    print("\n====== Lista de Reservas ======")
+    if not reservas:
+        print("Não existem reservas registadas.\n")
+        return
+
+    for r in reservas:
+        print(f"ID: {r.id_reserva} | NIF: {r.nif} | Quarto: {r.id_quarto} | Preço: {r.preco} | Noites: {r.noites}")
+    print()
+
+
+def imprimirTalao():
+    print("\n--- Imprimir Talão ---")
+    if not reservas:
+        print("Não existem reservas registadas.\n")
+        return
+
+    id_escolhido = int(input("Indique o ID da reserva: "))
+
+    for r in reservas:
+        if r.id_reserva == id_escolhido:
+            r.imprimeTalao()
+            return
+
+    print("Reserva não encontrada.\n")
+
+
+reservas.append(Reserva(123, 123456789, 412, 85, 2))
+reservas.append(Reserva(124, 123123456, 234, 55, 3))
+reservas.append(Reserva(125, 513451232, 652, 82.5, 2))
+reservas.append(Reserva(126, 542123123, 102, 60, 1))  # valores preenchidos
+
+
+# =============================
+#            MENU
+# =============================
+while True:
+    print("======= MENU ======")
+    print("1 - Registar Reservas")
+    print("2 - Listar Reservas")
+    print("3 - Imprimir Talão")
+    print("0 - Sair")
+
+    opcao = input("Escolha uma opção: ")
+
+    if opcao == "1":
+        registarReserva()
+    elif opcao == "2":
+        listarReservas()
+    elif opcao == "3":
+        imprimirTalao()
+    elif opcao == "0":
+        print("A sair do programa!")
+        break
+    else:
+        print("Opção inválida.\n")
