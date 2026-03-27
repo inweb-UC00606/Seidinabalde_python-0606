@@ -1,0 +1,204 @@
+# -------------------------
+# DADOS
+# -------------------------
+produtos = []
+fornecedores = []
+compras = []
+produto_compras = []
+stocks = []
+
+
+# -------------------------
+# FUNÇÕES AUXILIARES
+# -------------------------
+def escolher(lista, nome):
+    if not lista:
+        print(f"Não existem {nome} registados!")
+        return None
+
+    for i, item in enumerate(lista):
+        print(i, "-", item.get("descricao", item.get("nome", "Item")))
+
+    try:
+        i = int(input("Escolha: "))
+        if 0 <= i < len(lista):
+            return lista[i]
+    except:
+        pass
+
+    print("Opção inválida!")
+    return None
+
+
+def gerar_id(lista):
+    return len(lista) + 1
+
+
+# -------------------------
+# REGISTAR FORNECEDOR
+# -------------------------
+def registar_fornecedor():
+    fornecedor = {
+        "id": gerar_id(fornecedores),
+        "nome": input("Nome: "),
+        "nif": input("NIF: "),
+        "morada": input("Morada: "),
+        "email": input("Email: "),
+        "telefone": input("Telefone: ")
+    }
+    fornecedores.append(fornecedor)
+    print("Fornecedor registado!")
+
+
+# -------------------------
+# REGISTAR PRODUTO
+# -------------------------
+def registar_produto():
+    fornecedor = escolher(fornecedores, "fornecedores")
+    if not fornecedor:
+        return
+
+    produto = {
+        "id": gerar_id(produtos),
+        "descricao": input("Descrição: "),
+        "preco_compra": float(input("Preço compra: ")),
+        "preco_venda": float(input("Preço venda: ")),
+        "fornecedor": fornecedor,
+        "stock_min": int(input("Stock mínimo: "))
+    }
+
+    produtos.append(produto)
+
+    stocks.append({
+        "id": gerar_id(stocks),
+        "produto": produto,
+        "quantidade": 0
+    })
+
+    print("Produto registado!")
+
+
+# -------------------------
+# REGISTAR COMPRA
+# -------------------------
+def registar_compra():
+    compra = {
+        "id": gerar_id(compras),
+        "descricao": input("Descrição: "),
+        "data": input("Data: "),
+        "estado": "Pendente"
+    }
+
+    compras.append(compra)
+    print("Compra registada!")
+
+
+# -------------------------
+# ADICIONAR PRODUTO À COMPRA
+# -------------------------
+def adicionar_produto_compra():
+    compra = escolher(compras, "compras")
+    if not compra:
+        return
+
+    if compra["estado"] == "Recebida":
+        print("Não é possível adicionar produtos a uma compra já recebida!")
+        return
+
+    produto = escolher(produtos, "produtos")
+    if not produto:
+        return
+
+    qtd = int(input("Quantidade: "))
+
+    produto_compras.append({
+        "id": gerar_id(produto_compras),
+        "produto": produto,
+        "compra": compra,
+        "quantidade": qtd
+    })
+
+    print("Produto adicionado à compra!")
+
+
+# -------------------------
+# ALTERAR ESTADO DA COMPRA
+# -------------------------
+def alterar_estado():
+    compra = escolher(compras, "compras")
+    if not compra:
+        return
+
+    print("1 - Pendente")
+    print("2 - Recebida")
+
+    op = input("Estado: ")
+
+    if op == "1":
+        compra["estado"] = "Pendente"
+    elif op == "2":
+        compra["estado"] = "Recebida"
+
+        # atualizar stock automaticamente
+        for pc in produto_compras:
+            if pc["compra"]["id"] == compra["id"]:
+                for s in stocks:
+                    if s["produto"]["id"] == pc["produto"]["id"]:
+                        s["quantidade"] += pc["quantidade"]
+
+    print("Estado atualizado!")
+
+
+# -------------------------
+# LISTAR STOCK
+# -------------------------
+def listar_stock():
+    print("\n--- STOCK ---")
+    for s in stocks:
+        print(f"{s['produto']['descricao']} -> {s['quantidade']}")
+
+
+# -------------------------
+# STOCK ABAIXO DO MÍNIMO
+# -------------------------
+def stock_minimo():
+    print("\n--- STOCK CRÍTICO ---")
+    for s in stocks:
+        if s["quantidade"] < s["produto"]["stock_min"]:
+            print(f"{s['produto']['descricao']} -> {s['quantidade']} (Mín: {s['produto']['stock_min']})")
+
+
+# -------------------------
+# MENU
+# -------------------------
+while True:
+    print("\n===== SISTEMA =====")
+    print("1 - Registar Compra")
+    print("2 - Registar Produto")
+    print("3 - Adicionar Produto à Compra")
+    print("4 - Alterar Estado da Compra")
+    print("5 - Listar Stock")
+    print("6 - Stock abaixo do mínimo")
+    print("7 - Registar Fornecedor")
+    print("0 - Sair")
+
+    op = input("Opção: ")
+
+    if op == "1":
+        registar_compra()
+    elif op == "2":
+        registar_produto()
+    elif op == "3":
+        adicionar_produto_compra()
+    elif op == "4":
+        alterar_estado()
+    elif op == "5":
+        listar_stock()
+    elif op == "6":
+        stock_minimo()
+    elif op == "7":
+        registar_fornecedor()
+    elif op == "0":
+        break
+    else:
+        print("Opção inválida!")
