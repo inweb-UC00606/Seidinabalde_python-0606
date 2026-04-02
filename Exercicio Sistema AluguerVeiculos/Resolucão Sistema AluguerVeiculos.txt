@@ -1,0 +1,213 @@
+veiculos = []
+clientes = []
+alugueres = []
+faturacao = 0
+
+
+# ---------------- VEÍCULOS ----------------
+def adicionar_veiculo():
+    matricula = input("Matrícula: ").upper().strip()
+
+    for v in veiculos:
+        if v["matricula"] == matricula:
+            print("Veículo já existe.")
+            return
+
+    marca = input("Marca: ").strip()
+    modelo = input("Modelo: ").strip()
+    categoria = input("Categoria: ").strip()
+
+    try:
+        preco_dia = float(input("Preço por dia (€): "))
+        if preco_dia <= 0:
+            print("O preço deve ser maior que zero.")
+            return
+    except ValueError:
+        print("Preço inválido.")
+        return
+
+    veiculo = {
+        "matricula": matricula,
+        "marca": marca,
+        "modelo": modelo,
+        "categoria": categoria,
+        "preco_dia": preco_dia,
+        "disponivel": True
+    }
+
+    veiculos.append(veiculo)
+    print("Veículo registado com sucesso.")
+
+
+def listar_veiculos(apenas_disponiveis=False):
+    lista = veiculos if not apenas_disponiveis else [v for v in veiculos if v["disponivel"]]
+
+    if not lista:
+        print("Nenhum veículo encontrado.")
+    else:
+        for v in lista:
+            estado = "Disponível" if v["disponivel"] else "Indisponível"
+            print(f"{v['matricula']} | {v['marca']} {v['modelo']} | {v['categoria']} | {v['preco_dia']}€/dia | {estado}")
+
+
+def encontrar_veiculo(matricula):
+    matricula = matricula.upper().strip()
+    for v in veiculos:
+        if v["matricula"] == matricula:
+            return v
+    return None
+
+
+# ---------------- CLIENTES ----------------
+def adicionar_cliente():
+    nome = input("Nome: ").strip()
+    nif = input("NIF/ID: ").strip()
+
+    for c in clientes:
+        if c["nif"] == nif:
+            print("Cliente já existe.")
+            return
+
+    contacto = input("Contacto: ").strip()
+
+    cliente = {
+        "nome": nome,
+        "nif": nif,
+        "contacto": contacto
+    }
+
+    clientes.append(cliente)
+    print("Cliente registado com sucesso.")
+
+
+def encontrar_cliente(nif):
+    nif = nif.strip()
+    for c in clientes:
+        if c["nif"] == nif:
+            return c
+    return None
+
+
+# ---------------- ALUGUER ----------------
+def criar_aluguer():
+    global faturacao
+
+    nif = input("NIF do cliente: ").strip()
+    cliente = encontrar_cliente(nif)
+
+    if not cliente:
+        print("Cliente não encontrado.")
+        return
+
+    matricula = input("Matrícula do veículo: ").upper().strip()
+    veiculo = encontrar_veiculo(matricula)
+
+    if not veiculo:
+        print("Veículo não encontrado.")
+        return
+
+    if not veiculo["disponivel"]:
+        print("Veículo indisponível.")
+        return
+
+    try:
+        dias = int(input("Número de dias: "))
+        if dias <= 0:
+            print("O número de dias deve ser maior que zero.")
+            return
+    except ValueError:
+        print("Valor inválido.")
+        return
+
+    custo = dias * veiculo["preco_dia"]
+
+    aluguer = {
+        "cliente": cliente,
+        "veiculo": veiculo,
+        "dias": dias,
+        "custo": custo,
+        "ativo": True
+    }
+
+    alugueres.append(aluguer)
+    faturacao += custo
+
+    veiculo["disponivel"] = False
+
+    print("Aluguer criado com sucesso.")
+    print(f"Total: {custo}€")
+
+
+def devolver_veiculo():
+    matricula = input("Matrícula do veículo: ").upper().strip()
+
+    for a in alugueres:
+        if a["veiculo"]["matricula"] == matricula and a["ativo"]:
+            a["ativo"] = False
+            a["veiculo"]["disponivel"] = True
+
+            print("\nVeículo devolvido com sucesso.")
+            print(f"Cliente: {a['cliente']['nome']}")
+            print(f"Veículo: {a['veiculo']['marca']} {a['veiculo']['modelo']}")
+            print(f"Dias: {a['dias']}")
+            print(f"Custo total: {a['custo']}€")
+            return
+
+    print("Nenhum aluguer ativo encontrado.")
+
+
+# ---------------- RESUMO ----------------
+def resumo():
+    ativos = [a for a in alugueres if a["ativo"]]
+
+    print(f"Total veículos: {len(veiculos)}")
+    print(f"Total clientes: {len(clientes)}")
+    print(f"Alugueres ativos: {len(ativos)}")
+    print(f"Faturação total: {faturacao}€")
+
+
+# ---------------- MENU ----------------
+def menu():
+    print("\n=== Sistema de Aluguer ===")
+    print("1 - Registar veículo")
+    print("2 - Listar todos os veículos")
+    print("3 - Listar disponíveis")
+    print("4 - Registar cliente")
+    print("5 - Efetuar aluguer")
+    print("6 - Devolver veículo")
+    print("7 - Resumo")
+    print("0 - Sair")
+
+
+# ---------------- MAIN ----------------
+while True:
+    menu()
+    op = input("Opção: ")
+
+    if op == "1":
+        adicionar_veiculo()
+
+    elif op == "2":
+        listar_veiculos()
+
+    elif op == "3":
+        listar_veiculos(apenas_disponiveis=True)
+
+    elif op == "4":
+        adicionar_cliente()
+
+    elif op == "5":
+        criar_aluguer()
+
+    elif op == "6":
+        devolver_veiculo()
+
+    elif op == "7":
+        resumo()
+
+    elif op == "0":
+        print("A sair...")
+        break
+
+    else:
+        print("Opção inválida.")
