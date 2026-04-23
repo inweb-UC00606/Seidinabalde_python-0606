@@ -1,0 +1,277 @@
+import json
+from datetime import datetime, timedelta
+
+livros = []
+leitores = []
+emprestimos = []
+
+contador_leitores = 1
+contador_emprestimos = 1
+
+
+# -------------------------------
+#   DADOS (GUARDAR / CARREGAR)
+# -------------------------------
+
+def guardar():
+    with open("dados.json", "w") as f:
+        json.dump({
+            "livros": livros,
+            "leitores": leitores,
+            "emprestimos": emprestimos
+        }, f)
+
+
+def carregar():
+    global livros, leitores, emprestimos, contador_leitores, contador_emprestimos
+    try:
+        with open("dados.json", "r") as f:
+            dados = json.load(f)
+            livros = dados.get("livros", [])
+            leitores = dados.get("leitores", [])
+            emprestimos = dados.get("emprestimos", [])
+
+            contador_leitores = len(leitores) + 1
+            contador_emprestimos = len(emprestimos) + 1
+    except:
+        pass
+
+
+# -------------------------------
+#   LIVROS
+# -------------------------------
+
+def obter_livro(isbn):
+    return next((l for l in livros if l["isbn"] == isbn), None)
+
+
+def registar_livro():
+    print("\n--- Registar Livro ---")
+    titulo = input("Título: ").strip()
+    autor = input("Autor: ").strip()
+    isbn = input("ISBN: ").strip()
+
+    if not titulo or not autor or not isbn:
+        print("Dados inválidos.")
+        return
+
+    if obter_livro(isbn):
+        print("ISBN já existe.")
+        return
+
+    categoria = input("Categoria: ").strip()
+
+    try:
+        copias = int(input("Número de cópias: "))
+        if copias <= 0:
+            raise ValueError
+    except:
+        print("Valor inválido.")
+        return
+
+    livros.append({
+        "titulo": titulo,
+        "autor": autor,
+        "isbn": isbn,
+        "categoria": categoria,
+        "copias_totais": copias,
+        "copias_disponiveis": copias
+    })
+
+    guardar()
+    print("Livro registado.")
+
+
+def listar_livros(disponiveis=False):
+    print("\n--- Livros ---")
+    for l in livros:
+        if disponiveis and l["copias_disponiveis"] <= 0:
+            continue
+        print(f"{l['titulo']} | {l['autor']} | ISBN {l['isbn']} "
+              f"({l['copias_disponiveis']}/{l['copias_totais']})")
+
+
+# -------------------------------
+#   LEITORES
+# -------------------------------
+
+def obter_leitor(numero):
+    return next((l for l in leitores if l["numero"] == numero), None)
+
+
+def registar_leitor():
+    global contador_leitores
+
+    nome = input("Nome: ").strip()
+    contacto = input("Contacto: ").strip()
+
+    if not nome:
+        print("Nome inválido.")
+        return
+
+    leitores.append({
+        "numero": contador_leitores,
+        "nome": nome,
+        "contacto": contacto
+    })
+
+    print(f"Leitor criado: {contador_leitores}")
+    contador_leitores += 1
+    guardar()
+
+
+def listar_leitores():
+    print("\n--- Leitores ---")
+    for l in leitores:
+        print(f"{l['numero']} - {l['nome']}")
+
+
+# -------------------------------
+#   EMPRÉSTIMOS
+# -------------------------------
+
+def efetuar_emprestimo():
+    global contador_emprestimos
+
+    listar_leitores()
+    try:
+        num = int(input("Número leitor: "))
+    except:
+        print("Inválido.")
+        return
+
+    leitor = obter_leitor(num)
+    if not leitor:
+        print("Não existe.")
+        return
+
+    listar_livros(disponiveis=True)
+    isbn = input("ISBN: ").strip()
+    livro = obter_livro(isbn)
+
+    if not livro or livro["copias_disponiveis"] <= 0:
+        print("Livro indisponível.")
+        return
+
+    try:
+        dias = int(input("Dias: "))
+        if dias <= 0:
+            raise ValueError
+    except:
+        print("Inválido.")
+        return
+
+    inicio = datetime.now()
+    fim = inicio + timedelta(days=dias)
+
+    emprestimos.append({
+        "id": contador_emprestimos,
+        "leitor_numero": num,
+        "livro_isbn": isbn,
+        "data_inicio": inicio.strftime("%Y-%m-%d"),
+        "data_fim": fim.strftime("%Y-%m-%d"),
+        "ativo": True
+    })
+
+    livro["copias_disponiveis"] -= 1
+
+    print(f"Empréstimo criado ID {contador_emprestimos}")
+    contador_emprestimos += 1
+    guardar()
+
+
+def listar_emprestimos():
+    print("\n--- Empréstimos ---")
+    for e in emprestimos:
+        if e["ativo"]:
+            leitor = obter_leitor(e["leitor_numero"])
+            livro = obter_livro(e["livro_isbn"])
+            print(f"ID {e['id']} | {leitor['nome']} | {livro['titulo']} "
+                  f"até {e['data_fim']}")
+
+
+def devolver():
+    listar_emprestimos()
+
+    try:
+        id_e = int(input("ID: "))
+    except:
+        return
+
+    emp = next((e for e in emprestimos if e["id"] == id_e), None)
+
+    if not emp or not emp["ativo"]:
+        print("Erro.")
+        return
+
+    emp["ativo"] = False
+    livro = obter_livro(emp["livro_isbn"])
+    livro["copias_disponiveis"] += 1
+
+    guardar()
+    print("Devolvido.")
+
+
+# -------------------------------
+#   EXTRAS
+# -------------------------------
+
+def verificar_atrasos():
+    hoje = datetime.now()
+
+    print("\n--- Atrasos ---")
+    for e in emprestimos:
+        if e["ativo"]:
+            fim = datetime.strptime(e["data_fim"], "%Y-%m-%d")
+            if hoje > fim:
+                leitor = obter_leitor(e["leitor_numero"])
+                livro = obter_livro(e["livro_isbn"])
+                print(f"Atraso: {leitor['nome']} - {livro['titulo']}")
+
+
+def resumo():
+    print("\n--- Resumo ---")
+    print("Livros:", len(livros))
+    print("Leitores:", len(leitores))
+    print("Ativos:", sum(e["ativo"] for e in emprestimos))
+
+
+# -------------------------------
+#   MENU
+# -------------------------------
+
+def menu():
+    print("\n1-Livro 2-Listar 3-Disponíveis")
+    print("4-Leitor 5-Emprestar 6-Devolver")
+    print("7-Resumo 8-Atrasos 0-Sair")
+
+
+def main():
+    carregar()
+
+    while True:
+        menu()
+        op = input("Opção: ")
+
+        if op == "1":
+            registar_livro()
+        elif op == "2":
+            listar_livros()
+        elif op == "3":
+            listar_livros(True)
+        elif op == "4":
+            registar_leitor()
+        elif op == "5":
+            efetuar_emprestimo()
+        elif op == "6":
+            devolver()
+        elif op == "7":
+            resumo()
+        elif op == "8":
+            verificar_atrasos()
+        elif op == "0":
+            break
+
+
+if __name__ == "__main__":
+    main()
